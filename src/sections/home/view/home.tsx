@@ -1,13 +1,16 @@
-import { Alert, Snackbar, Stack, Typography } from '@mui/material';
-import { useGetUsers } from 'src/api/user';
+import { Button, Stack, Typography } from '@mui/material';
+import { useGetUsers, useAddUser, useDeleteUser } from 'src/api/user';
 import { useForm } from 'react-hook-form';
-import { useAddUser, useDeleteUser } from 'src/api/user';
-import Form from '../form';
 import UserList from '../user-list';
 import { useState } from 'react';
+import AddUserDialog from '../add-user-dialog';
+import DeleteUserDialog from '../delete-user-dialog';
 
 export default function Home() {
   const [counter, setCounter] = useState(0);
+  const [showAdd, setShowAdd] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState('');
+  const [showDelete, setShowDelete] = useState(false);
   const { data: users, status } = useGetUsers();
 
   const { control, handleSubmit, reset } = useForm({
@@ -23,10 +26,11 @@ export default function Home() {
 
   const { mutateAsync: deleteUser } = useDeleteUser();
 
-  const handleDeleteUser = async (id: string) => {
+  const onDeleteUser = async () => {
     try {
-      await deleteUser(id);
+      await deleteUser(selectedUserId);
       setCounter(counter + 1);
+      setShowDelete(false);
     } catch (error) {
       console.error(error.message);
     }
@@ -37,6 +41,7 @@ export default function Home() {
       await mutateAsync(data);
       setCounter(counter + 1);
       reset();
+      setShowAdd(false);
     } catch (error) {
       console.error(error.message);
     }
@@ -44,21 +49,37 @@ export default function Home() {
 
   return (
     <>
-      <Typography variant="h1" sx={{ mb: 4 }}>
-        Users App
-      </Typography>
-      <Typography variant="h5">Operations success: {counter}</Typography>
-      <Stack
-        direction="row"
-        sx={{
-          flexDirection: { xs: 'column-reverse', sm: 'row' },
-          columnGap: { xs: 0, sm: 2 },
-          rowGap: { xs: 4, sm: 0 },
-        }}
-      >
-        <UserList users={users?.data} handleDeleteUser={handleDeleteUser as any} status={status} />
-        <Form onSubmit={onSubmit} control={control} />
+      <Stack direction="column" spacing={4}>
+        <Typography variant="h1" sx={{ mb: 4 }}>
+          Users App
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setShowAdd(true)}
+          sx={{ maxWidth: 300 }}
+        >
+          Add User
+        </Button>
+        <UserList
+          users={users?.data}
+          setShowDelete={() => setShowDelete(true)}
+          setSelectedUserId={(id: string) => setSelectedUserId(id)}
+          status={status}
+        />
+        <Typography variant="h5">Operations success: {counter}</Typography>
       </Stack>
+      <AddUserDialog
+        open={showAdd}
+        handleClose={() => setShowAdd(false)}
+        control={control}
+        onSubmit={onSubmit}
+      />
+      <DeleteUserDialog
+        open={showDelete}
+        onClose={() => setShowDelete(false)}
+        onDeleteUser={onDeleteUser}
+      />
     </>
   );
 }

@@ -1,14 +1,16 @@
 import { Box, Typography, Card, CardContent, CardActions, Button, Stack } from '@mui/material';
+import { wrap } from 'module';
 
 import { User } from 'src/types/user';
 
 type UserListProps = {
   users: User[];
-  handleDeleteUser: (id: string) => VoidFunction;
+  setShowDelete: (show: boolean) => void;
   status: string;
+  setSelectedUserId: (id: string) => void;
 };
 
-function UserList({ users, handleDeleteUser, status }: UserListProps) {
+function UserList({ users, setShowDelete, status, setSelectedUserId }: UserListProps) {
   return (
     <Box sx={{ width: '100%' }}>
       {status === 'pending' && <Typography variant="body1">Loading ...</Typography>}
@@ -17,7 +19,7 @@ function UserList({ users, handleDeleteUser, status }: UserListProps) {
           sx={{
             display: 'grid',
             gridTemplateColumns: {
-              lg: 'repeat(3, 1fr)',
+              lg: 'repeat(4, 1fr)',
               md: 'repeat(2, 1fr)',
               xs: 'repeat(1, 1fr)',
             },
@@ -26,27 +28,40 @@ function UserList({ users, handleDeleteUser, status }: UserListProps) {
           }}
         >
           {users?.map((user: User) => (
-            <Card key={user.id} sx={{ minWidth: 275 }}>
-              <CardContent>
-                <Stack direction="column">
-                  <Typography variant="body1">Name: {user.name}</Typography>
-                  <Typography variant="body1">Gender: {user.gender}</Typography>
-                  <Typography variant="body1">Email: {user.email}</Typography>
-                  <Typography
-                    variant="body1"
-                    color={(theme) =>
-                      user.status === 'active' ? theme.palette.success.main : theme.palette.error.main
-                    }
-                  >
-                    {user.status}
-                  </Typography>
-                </Stack>
-              </CardContent>
-              <CardActions>
-                <Button size="small" onClick={() => handleDeleteUser(user.id as string)}>
+            <Card key={user.id} sx={{ minWidth: 275, p: 0, backgroundColor: (theme)=>theme.palette.background.neutral }}>
+              <CardContent
+                sx={{
+                  display: 'flex',
+                  height: '100%',
+                  justifyContent: 'space-around',
+                  flexDirection: 'column',
+                }}
+              >
+                {/* <Stack direction="column" sx={{ alignContent: 'space-around', height: '100%' }}>
+                  
+                </Stack> */}
+                <Typography variant="body1">Name: {user.name}</Typography>
+                <Typography variant="body1">Gender: {user.gender}</Typography>
+                <Typography variant="body1">Email: {user.email}</Typography>
+                <Typography
+                  variant="body1"
+                  color={(theme) =>
+                    user.status === 'active' ? theme.palette.success.main : theme.palette.error.main
+                  }
+                >
+                  {user.status}
+                </Typography>
+                <Button
+                  size="small"
+                  variant="contained"
+                  onClick={() => {
+                    setSelectedUserId(user.id as string);
+                    setShowDelete(true);
+                  }}
+                >
                   Delete
                 </Button>
-              </CardActions>
+              </CardContent>
             </Card>
           ))}
         </Box>

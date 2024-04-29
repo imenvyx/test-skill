@@ -16,6 +16,7 @@ function postUser(data: User): Promise<AxiosResponse<any, any>> {
 }
 
 export async function deleteUser(id: string) {
+  console.log(id);
   return axios.delete(endpoints.deleteUser(id));
 }
 
