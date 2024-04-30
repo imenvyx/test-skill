@@ -1,14 +1,18 @@
 import axios from 'src/utils/axios';
 import { endpoints } from 'src/utils/axios';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
 import { User } from 'src/types/user';
-import { SnackbarProps } from '@mui/material';
 
-function getUser() {
-  const data = axios.get(endpoints.users);
-  return data;
-}
+// "/public/v2/users?page=1&per_page=20"
+
+const getUser = async (page: number, perPage: number) => {
+  const url =
+    !page && !perPage ? endpoints.users : `${endpoints.users}?page=${page}&per_page=${perPage}`;
+  console.log(url);
+  const data = await axios.get(url);
+  return data.data;
+};
 
 function postUser(data: User): Promise<AxiosResponse<any, any>> {
   console.log(data);
@@ -20,10 +24,10 @@ export async function deleteUser(id: string) {
   return axios.delete(endpoints.deleteUser(id));
 }
 
-export function useGetUsers() {
-  const { data, status } = useQuery({ queryKey: ['users'], queryFn: getUser });
+/* export function useGetUsers() {
+  const { data, status } = useQuery({ queryKey: ['users'], queryFn: () => getUser() });
   return { data, status };
-}
+} */
 
 export function useAddUser() {
   const queryClient = useQueryClient();
@@ -43,4 +47,19 @@ export function useDeleteUser() {
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
   });
+}
+
+export function useSeekUser(page: number, perPage: number) {
+  console.log(page, perPage);
+  const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } =
+    useInfiniteQuery({
+      queryKey: ['seek-users'],
+      queryFn: () => getUser(page, perPage),
+      initialPageParam: page,
+      getNextPageParam: (lastPage, pages) => lastPage,
+    });
+
+  console.log(data);
+
+  return { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status };
 }

@@ -8,7 +8,6 @@ type DeleteUserDialogProps = {
 };
 
 function DeleteUserDialog({ open, onClose, onDeleteUser }: DeleteUserDialogProps) {
-  console.log(onDeleteUser);
   return createPortal(
     <Dialog onClose={onClose} open={open}>
       <DialogTitle sx={{ textAlign: 'center' }}>Delete User</DialogTitle>

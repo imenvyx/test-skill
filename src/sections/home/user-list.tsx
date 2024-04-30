@@ -1,10 +1,8 @@
-import { Box, Typography, Card, CardContent, CardActions, Button, Stack } from '@mui/material';
-import { wrap } from 'module';
-
+import { Box, Typography, Card, CardContent, Button } from '@mui/material';
 import { User } from 'src/types/user';
 
 type UserListProps = {
-  users: User[];
+  users: any;
   setShowDelete: (show: boolean) => void;
   status: string;
   setSelectedUserId: (id: string) => void;
@@ -28,7 +26,14 @@ function UserList({ users, setShowDelete, status, setSelectedUserId }: UserListP
           }}
         >
           {users?.map((user: User) => (
-            <Card key={user.id} sx={{ minWidth: 275, p: 0, backgroundColor: (theme)=>theme.palette.background.neutral }}>
+            <Card
+              key={user.id}
+              sx={{
+                minWidth: 275,
+                p: 0,
+                backgroundColor: (theme) => theme.palette.background.neutral,
+              }}
+            >
               <CardContent
                 sx={{
                   display: 'flex',
@@ -37,9 +42,6 @@ function UserList({ users, setShowDelete, status, setSelectedUserId }: UserListP
                   flexDirection: 'column',
                 }}
               >
-                {/* <Stack direction="column" sx={{ alignContent: 'space-around', height: '100%' }}>
-                  
-                </Stack> */}
                 <Typography variant="body1">Name: {user.name}</Typography>
                 <Typography variant="body1">Gender: {user.gender}</Typography>
                 <Typography variant="body1">Email: {user.email}</Typography>

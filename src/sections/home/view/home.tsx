@@ -1,17 +1,19 @@
 import { Button, Stack, Typography } from '@mui/material';
-import { useGetUsers, useAddUser, useDeleteUser } from 'src/api/user';
+import { useAddUser, useDeleteUser, useSeekUser } from 'src/api/user';
 import { useForm } from 'react-hook-form';
 import UserList from '../user-list';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AddUserDialog from '../add-user-dialog';
 import DeleteUserDialog from '../delete-user-dialog';
+import Pagination from 'src/components/Pagination';
 
 export default function Home() {
   const [counter, setCounter] = useState(0);
+  const [page, setPage] = useState(0);
+  const [perPage, setPerPage] = useState(10);
   const [showAdd, setShowAdd] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState('');
   const [showDelete, setShowDelete] = useState(false);
-  const { data: users, status } = useGetUsers();
 
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
@@ -47,6 +49,9 @@ export default function Home() {
     }
   });
 
+  const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } =
+    useSeekUser(page, perPage);
+
   return (
     <>
       <Stack direction="column" spacing={4}>
@@ -62,10 +67,18 @@ export default function Home() {
           Add User
         </Button>
         <UserList
-          users={users?.data}
+          users={data?.pages[page]}
           setShowDelete={() => setShowDelete(true)}
           setSelectedUserId={(id: string) => setSelectedUserId(id)}
           status={status}
+        />
+        <Pagination
+          page={page}
+          perPage={perPage}
+          setPage={setPage as any}
+          setPerPage={setPerPage as any}
+          fetchNextPage={fetchNextPage}
+          hasNextPage={hasNextPage}
         />
         <Typography variant="h5">Operations success: {counter}</Typography>
       </Stack>
